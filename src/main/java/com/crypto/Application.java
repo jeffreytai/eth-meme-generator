@@ -1,11 +1,10 @@
 package com.crypto;
 
-import com.crypto.cloudinary.CloudinaryHelper;
+import com.crypto.price.PriceChecker;
 
 public class Application {
 
     public static void main(String[] args) {
-        CloudinaryHelper cloudinary = new CloudinaryHelper();
-        cloudinary.sendMeme(1000);
+        PriceChecker.processEtherPrice();
     }
 }

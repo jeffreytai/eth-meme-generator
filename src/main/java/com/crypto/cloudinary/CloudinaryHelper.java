@@ -3,6 +3,7 @@ package com.crypto.cloudinary;
 import com.cloudinary.Cloudinary;
 import com.cloudinary.utils.ObjectUtils;
 import com.crypto.slack.SlackClient;
+import org.apache.commons.io.FileUtils;
 
 import java.io.File;
 import java.io.FileOutputStream;
@@ -54,20 +55,26 @@ public class CloudinaryHelper {
         cloudinary = new Cloudinary(config);
     }
 
+    /**
+     * Apply proper transformations and captions to the meme and send it to appropriate channel in Slack
+     * @param etherValue
+     */
     public void sendMeme(Integer etherValue) {
-        String imageUrl = applyImageTransformations(etherValue);
+        String imagePath = applyImageTransformations(etherValue);
+        File captionedMeme = new File("captioned-meme.jpg");
 
-        boolean saveSuccess = saveImage(imageUrl);
-        String captionedFilename = "captioned-meme.jpg";
-        if (saveSuccess) {
-            SlackClient slack = new SlackClient();
-            String filePath = CloudinaryHelper.class.getClassLoader().getResource(captionedFilename).getFile();
-            File file = new File(filePath);
+        try {
+            URL url = new URL(imagePath);
 
-            slack.uploadFile(file);
-
-            slack.shutdown();
+            // Create file object from contents of URL
+            FileUtils.copyURLToFile(url, captionedMeme);
+        } catch (IOException ex) {
+            ex.printStackTrace();
         }
+
+        SlackClient slack = new SlackClient();
+        slack.uploadFile(captionedMeme);
+        slack.shutdown();
     }
 
     /**
@@ -159,31 +166,5 @@ public class CloudinaryHelper {
         String transformedUrl = baseUrl + "/" + widthTransformation + "/" + upperTransformation + "/" + lowerTransformation + suffixUrl;
 
         return transformedUrl;
-    }
-
-    private boolean saveImage(String imageUrl) {
-        try {
-            URL url = new URL(imageUrl);
-            String fileName = url.getFile();
-            String destName = "src/main/resources/captioned-meme.jpg";
-
-            InputStream is = url.openStream();
-            OutputStream os = new FileOutputStream(destName);
-
-            byte[] b = new byte[2048];
-            int length;
-
-            while ((length = is.read(b)) != -1) {
-                os.write(b, 0, length);
-            }
-
-            is.close();
-            os.close();
-        } catch (IOException ex) {
-            ex.printStackTrace();
-            return false;
-        }
-
-        return true;
     }
 }
