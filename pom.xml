@@ -10,6 +10,7 @@
 
     <properties>
         <java.version>8</java.version>
+        <slf4j.version>1.7.25</slf4j.version>
         <slack.version>v1.5.1.RELEASE</slack.version>
         <cloudinary.version>1.17.0</cloudinary.version>
         <jackson.version>2.9.3</jackson.version>
@@ -25,6 +26,12 @@
     </repositories>
 
     <dependencies>
+        <dependency>
+            <groupId>org.slf4j</groupId>
+            <artifactId>slf4j-log4j12</artifactId>
+            <version>${slf4j.version}</version>
+        </dependency>
+
         <dependency>
             <groupId>com.cloudinary</groupId>
             <artifactId>cloudinary-core</artifactId>

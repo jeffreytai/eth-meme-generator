@@ -4,6 +4,8 @@ import com.crypto.cloudinary.CloudinaryHelper;
 import com.crypto.utils.ApiUtils;
 import com.crypto.utils.DbUtils;
 import org.json.JSONObject;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 
@@ -13,9 +15,9 @@ import java.io.IOException;
  */
 public class PriceChecker {
 
-    public PriceChecker() {
+    private static final Logger logger = LoggerFactory.getLogger(PriceChecker.class);
 
-    }
+    public PriceChecker() {}
 
     /**
      * Get the current price of ether from the CryptoCompare API
@@ -41,8 +43,12 @@ public class PriceChecker {
     public static void processEtherPrice() {
         Double currentEtherPrice = getCurrentEtherPrice();
 
+        logger.info("Current ether price: {}", currentEtherPrice.toString());
+
         DbUtils db = new DbUtils();
         Double historicalMaxEtherPrice = db.getHighestEtherValue();
+
+        logger.info("Current highest ether value: {}", historicalMaxEtherPrice.toString());
 
         Integer lowestHundredIncrement = (currentEtherPrice.intValue() / 100) * 100;
 
@@ -51,6 +57,7 @@ public class PriceChecker {
             cloudinary.sendMeme(lowestHundredIncrement);
 
             db.insertNewIncrement(lowestHundredIncrement);
+            logger.info("Inserted new Ether value {} into database", lowestHundredIncrement);
         }
     }
 }
