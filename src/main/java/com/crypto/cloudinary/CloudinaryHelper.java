@@ -4,17 +4,19 @@ import com.cloudinary.Cloudinary;
 import com.cloudinary.utils.ObjectUtils;
 import com.crypto.slack.SlackClient;
 import org.apache.commons.io.FileUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.File;
-import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.OutputStream;
 import java.net.URL;
 import java.util.Map;
 import java.util.Properties;
 
 public class CloudinaryHelper {
+
+    private static final Logger logger = LoggerFactory.getLogger(CloudinaryHelper.class);
 
     // Constants
     private static final String CLOUD_NAME = "ethereum-meme";
@@ -68,6 +70,7 @@ public class CloudinaryHelper {
 
             // Create file object from contents of URL
             FileUtils.copyURLToFile(url, captionedMeme);
+            logger.info("Downloading captioned meme to local file");
         } catch (IOException ex) {
             ex.printStackTrace();
         }
@@ -75,6 +78,8 @@ public class CloudinaryHelper {
         SlackClient slack = new SlackClient();
         slack.uploadFile(captionedMeme);
         slack.shutdown();
+
+        logger.info("Meme successfully sent to Slack");
     }
 
     /**
@@ -112,6 +117,8 @@ public class CloudinaryHelper {
      */
     public String applyImageTransformations(Integer etherValue) {
         String generatedUrl = uploadPicture();
+
+        logger.info("Uploaded base image to Cloudinary");
 
         int lastSlashIndex = generatedUrl.lastIndexOf("/");
         String baseUrl = generatedUrl.substring(0, lastSlashIndex);
@@ -164,6 +171,8 @@ public class CloudinaryHelper {
                 .toString();
 
         String transformedUrl = baseUrl + "/" + widthTransformation + "/" + upperTransformation + "/" + lowerTransformation + suffixUrl;
+
+        logger.info("Applied transformation to picture");
 
         return transformedUrl;
     }
